@@ -38,6 +38,8 @@ func (r *ListRepository) UpdateList(list *model.List) *gorm.DB {
 }
 
 // 删除列表
-func (r *ListRepository) DeleteList(id uint) *gorm.DB {
-	return r.db.Delete(&model.List{}, id)
+// 由于删除没有的数据时不会返回错误，所以这里返回受影响的行数和错误
+func (r *ListRepository) DeleteList(id uint) (int64, error) {
+	result := r.db.Delete(&model.List{}, id)
+	return result.RowsAffected, result.Error
 }

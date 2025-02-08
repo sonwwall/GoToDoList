@@ -38,6 +38,9 @@ func Router() *gin.Engine {
 	listGroup.Use(middleware.JwtAuthMiddleware())
 	{
 		listGroup.POST("", listHandler.CreateList)
+		listGroup.GET("/:id", listHandler.GetList)
+		listGroup.PUT("/:id", listHandler.UpdateList)
+		listGroup.DELETE("/:id", listHandler.DeleteList)
 	}
 
 	taskGroup := r.Group("/api/v1/task")
