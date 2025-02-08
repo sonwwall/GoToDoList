@@ -11,7 +11,7 @@ func main() {
 	initialize.SetupLogger()
 	initialize.SetupDatabase()
 
-	router := v1.NewRouter()
+	router := v1.Router()
 
 	global.Logger.Info("服务正在启动...端口在8080...")
 	if err := router.Run("localhost:8080"); err != nil {

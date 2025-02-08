@@ -50,7 +50,8 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
-	if err := service.Login(&user); err != nil {
+	err, token := service.Login(&user)
+	if err != nil {
 		if err == service.UserNotExisted {
 			c.JSON(200, gin.H{
 				"code": 400,
@@ -73,8 +74,9 @@ func UserLogin(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"code": 200,
-		"msg":  "登录成功",
+		"code":  200,
+		"msg":   "登录成功",
+		"token": token,
 	})
 
 }

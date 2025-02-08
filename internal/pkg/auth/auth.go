@@ -1,6 +1,8 @@
 package auth
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
 
 //关于该文件的描述：
 //在软件项目中，auth（代表“authentication”，即“认证”）目录通常用于存放与用户认证和授权相关的代码。
