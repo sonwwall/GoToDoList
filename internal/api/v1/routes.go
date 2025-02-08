@@ -43,10 +43,17 @@ func Router() *gin.Engine {
 		listGroup.DELETE("/:id", listHandler.DeleteList)
 	}
 
+	taskRepo := repository.NewTaskRepository(global.Mysql)
+	taskService := service.NewTaskService(taskRepo)
+	taskHandler := NewTaskHandler(taskService)
+
 	taskGroup := r.Group("/api/v1/task")
 	taskGroup.Use(middleware.JwtAuthMiddleware())
 	{
-
+		taskGroup.POST("", taskHandler.CreateTask)
+		taskGroup.GET("/:id", taskHandler.GetTask)
+		taskGroup.PUT("/:id", taskHandler.UpdateTask)
+		taskGroup.DELETE("/:id", taskHandler.DeleteTask)
 	}
 
 	return r
