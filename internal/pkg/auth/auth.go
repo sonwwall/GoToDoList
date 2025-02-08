@@ -35,3 +35,8 @@ func HashPassword(password string) (string, error) {
 	//从而影响密码哈希的安全性和性能。bcrypt 使用这个因子来增加计算哈希的时间，使得暴力破解更加困难
 	return string(bytes), err
 }
+
+func CheckPasswordHash(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}

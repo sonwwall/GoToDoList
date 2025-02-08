@@ -18,5 +18,3 @@ func main() {
 		global.Logger.Error("服务启动失败" + err.Error())
 	}
 }
-
-//
