@@ -13,6 +13,9 @@ func main() {
 
 	router := v1.Router()
 
+	// 配置静态文件服务
+	router.Static("/uploads", "./uploads")
+
 	global.Logger.Info("服务正在启动...端口在8080...")
 	if err := router.Run("localhost:8080"); err != nil {
 		global.Logger.Error("服务启动失败" + err.Error())

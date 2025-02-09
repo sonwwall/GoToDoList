@@ -15,6 +15,7 @@ func Router() *gin.Engine {
 	{
 		userGroup.POST("/register", UserRegister)
 		userGroup.POST("/login", UserLogin)
+		userGroup.PUT("/update", middleware.JwtAuthMiddleware(), UpdateUserInfo)
 	}
 
 	//创建api,service,repository实例

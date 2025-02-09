@@ -3,6 +3,7 @@ package v1
 import (
 	"GoToDoList/internal/model"
 	"GoToDoList/internal/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -77,6 +78,52 @@ func UserLogin(c *gin.Context) {
 		"code":  200,
 		"msg":   "登录成功",
 		"token": token,
+	})
+
+}
+
+// 将any转换为string,临时写在这里
+func AnyToString(value any) string {
+	return fmt.Sprintf("%v", value)
+}
+
+func UpdateUserInfo(c *gin.Context) {
+	// 获取用户名,验证用户
+	username, exists := c.Get("username")
+	if !exists {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "用户不存在",
+		})
+		return
+	}
+	// 获取用户输入的新用户名和昵称
+	newusername := c.PostForm("new_username")
+	newnickname := c.PostForm("new_nickname")
+
+	//获取文件
+	file, header, err := c.Request.FormFile("avatar")
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "上传文件失败",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	//更新用户信息
+	if err := service.UpdateUserInfo(AnyToString(username), file, header, newusername, newnickname); err != nil {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "更新用户信息失败",
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "更新用户信息成功",
 	})
 
 }
