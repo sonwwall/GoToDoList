@@ -27,7 +27,7 @@ func SetupMysql() {
 	if err != nil {
 		global.Logger.Fatal("数据库连接失败" + err.Error())
 	}
-	global.Mysql = db                    // 将数据库连接赋值给全局变量global.Mysql
+	global.Mysql = db             // 将数据库连接赋值给全局变量global.Mysql
 	global.Logger.Info("数据库连接成功") // 记录数据库连接成功的日志信息
 
 	// 执行数据库迁移，确保数据库中的表与 Go 模型匹配

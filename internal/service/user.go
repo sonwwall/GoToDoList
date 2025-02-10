@@ -19,7 +19,7 @@ import (
 var Userhasalreadyexisted = errors.New("用户已存在")
 
 // 注册
-func Register(user *model.User) error {
+func Register(user *model.User, file multipart.File, header *multipart.FileHeader) error {
 	repo := repository.NewUserRepository(global.Mysql)
 	existingUser, err := repo.GetUserByUsername(user.Username)
 	if err != nil {
@@ -35,10 +35,34 @@ func Register(user *model.User) error {
 		return err
 	}
 
+	//先存入数据库中，自动获取用户id
 	result := repo.CreateUser(user)
 	if result.Error != nil {
 		return result.Error
 	}
+
+	// 如果用户上传了头像，则更新用户头像
+	if file != nil && header != nil {
+		// 检查文件类型
+		ext := filepath.Ext(header.Filename)
+		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" {
+			return errors.New("文件类型不支持")
+		}
+
+		// 更新用户头像
+		// 将得到的用户信息中的id传入
+		avatarurl, err := UpdateAvatar(user.ID, file, header)
+		if err != nil {
+			return err
+		}
+		user.Avatar = avatarurl
+
+		//再次存入数据库，这次是为了存入头像url
+		if err := repo.UpdateUser(user); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -144,7 +168,7 @@ func UpdateUserInfo(username string, file multipart.File, header *multipart.File
 	}
 
 	//获取请求上下文的jwt
-
+	// 从当前 HTTP 请求的上下文中提取 Authorization 请求头的值
 	authHeader := global.GinContext.GetHeader("Authorization")
 	tokenstring := strings.Replace(authHeader, "Bearer ", "", 1)
 

@@ -3,7 +3,7 @@ package v1
 import (
 	"GoToDoList/internal/model"
 	"GoToDoList/internal/service"
-	"fmt"
+	"GoToDoList/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,18 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
-	if err := service.Register(&user); err != nil {
+	//获取文件
+	file, header, err := c.Request.FormFile("avatar")
+	if err != nil && err.Error() != "http: no such file" {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "上传文件失败",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := service.Register(&user, file, header); err != nil {
 		if err == service.Userhasalreadyexisted {
 			c.JSON(200, gin.H{
 				"code": 400,
@@ -82,11 +93,6 @@ func UserLogin(c *gin.Context) {
 
 }
 
-// 将any转换为string,临时写在这里
-func AnyToString(value any) string {
-	return fmt.Sprintf("%v", value)
-}
-
 func UpdateUserInfo(c *gin.Context) {
 	// 获取用户名,验证用户
 	username, exists := c.Get("username")
@@ -114,7 +120,7 @@ func UpdateUserInfo(c *gin.Context) {
 	}
 
 	//更新用户信息
-	if err := service.UpdateUserInfo(AnyToString(username), file, header, newusername, newnickname); err != nil {
+	if err := service.UpdateUserInfo(utils.AnyToString(username), file, header, newusername, newnickname); err != nil {
 		c.JSON(200, gin.H{
 			"code":  400,
 			"msg":   "更新用户信息失败",
