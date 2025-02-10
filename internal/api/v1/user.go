@@ -7,7 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func UserRegister(c *gin.Context) {
+type UserHandler struct {
+	UserService *service.UserService
+}
+
+func NewUserHandler(userService *service.UserService) *UserHandler {
+	return &UserHandler{
+		UserService: userService,
+	}
+}
+
+// 用户注册
+func (h *UserHandler) UserRegister(c *gin.Context) {
 	var user model.User
 	if err := c.ShouldBind(&user); err != nil {
 		c.JSON(200, gin.H{
@@ -29,8 +40,8 @@ func UserRegister(c *gin.Context) {
 		return
 	}
 
-	if err := service.Register(&user, file, header); err != nil {
-		if err == service.Userhasalreadyexisted {
+	if err := h.UserService.Register(&user, file, header); err != nil {
+		if err == service.UserExisted {
 			c.JSON(200, gin.H{
 				"code": 400,
 				"msg":  "用户已存在",
@@ -52,7 +63,8 @@ func UserRegister(c *gin.Context) {
 	})
 }
 
-func UserLogin(c *gin.Context) {
+// 用户登录
+func (h *UserHandler) UserLogin(c *gin.Context) {
 	var user model.User
 
 	if err := c.ShouldBind(&user); err != nil {
@@ -62,7 +74,7 @@ func UserLogin(c *gin.Context) {
 		})
 		return
 	}
-	err, token := service.Login(&user)
+	err, token := h.UserService.Login(&user)
 	if err != nil {
 		if err == service.UserNotExisted {
 			c.JSON(200, gin.H{
@@ -93,7 +105,8 @@ func UserLogin(c *gin.Context) {
 
 }
 
-func UpdateUserInfo(c *gin.Context) {
+// 更新用户信息
+func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 	// 获取用户名,验证用户
 	username, exists := c.Get("username")
 
@@ -120,7 +133,7 @@ func UpdateUserInfo(c *gin.Context) {
 	}
 
 	//更新用户信息
-	if err := service.UpdateUserInfo(utils.AnyToString(username), file, header, newusername, newnickname); err != nil {
+	if err := h.UserService.UpdateUserInfo(utils.AnyToString(username), file, header, newusername, newnickname); err != nil {
 		c.JSON(200, gin.H{
 			"code":  400,
 			"msg":   "更新用户信息失败",

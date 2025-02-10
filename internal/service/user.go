@@ -15,18 +15,26 @@ import (
 	"time"
 )
 
+type UserService struct {
+	UserRepository *repository.UserRepository
+}
+
+func NewUserService(repo *repository.UserRepository) *UserService {
+	return &UserService{UserRepository: repo}
+}
+
 // 用户已存在
-var Userhasalreadyexisted = errors.New("用户已存在")
+var UserExisted = errors.New("用户已存在")
 
 // 注册
-func Register(user *model.User, file multipart.File, header *multipart.FileHeader) error {
+func (s *UserService) Register(user *model.User, file multipart.File, header *multipart.FileHeader) error {
 	repo := repository.NewUserRepository(global.Mysql)
 	existingUser, err := repo.GetUserByUsername(user.Username)
 	if err != nil {
 		return err
 	}
 	if existingUser != nil {
-		return Userhasalreadyexisted
+		return UserExisted
 	}
 
 	// 对密码进行哈希处理
@@ -51,7 +59,7 @@ func Register(user *model.User, file multipart.File, header *multipart.FileHeade
 
 		// 更新用户头像
 		// 将得到的用户信息中的id传入
-		avatarurl, err := UpdateAvatar(user.ID, file, header)
+		avatarurl, err := s.UpdateAvatar(user.ID, file, header)
 		if err != nil {
 			return err
 		}
@@ -70,7 +78,7 @@ func Register(user *model.User, file multipart.File, header *multipart.FileHeade
 var UserNotExisted = errors.New("用户不存在")
 var PasswordError = errors.New("密码错误")
 
-func Login(user *model.User) (error, string) {
+func (s *UserService) Login(user *model.User) (error, string) {
 	// 创建一个 UserRepository 实例，用于与数据库交互
 	repo := repository.NewUserRepository(global.Mysql)
 	existingUser, err := repo.GetUserByUsername(user.Username) //查询数据库有无此人,如果存在就返回该用户实例
@@ -98,7 +106,7 @@ func Login(user *model.User) (error, string) {
 }
 
 // 更新头像
-func UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader) (string, error) {
+func (s *UserService) UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader) (string, error) {
 	// 创建保存路径
 	dir := "./uploads/avatars"
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
@@ -134,7 +142,7 @@ func UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader
 }
 
 // 更新用户信息
-func UpdateUserInfo(username string, file multipart.File, header *multipart.FileHeader, newusername, newnickname string) error {
+func (s *UserService) UpdateUserInfo(username string, file multipart.File, header *multipart.FileHeader, newusername, newnickname string) error {
 	repo := repository.NewUserRepository(global.Mysql)
 
 	//获取已存在的用户信息
@@ -152,7 +160,7 @@ func UpdateUserInfo(username string, file multipart.File, header *multipart.File
 
 		// 更新用户头像
 		// 将得到的用户信息中的id传入
-		avatarurl, err := UpdateAvatar(existingUser.ID, file, header)
+		avatarurl, err := s.UpdateAvatar(existingUser.ID, file, header)
 		if err != nil {
 			return err
 		}

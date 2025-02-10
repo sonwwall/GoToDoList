@@ -11,11 +11,15 @@ import (
 func Router() *gin.Engine {
 	r := gin.Default()
 
+	userRepo := repository.NewUserRepository(global.Mysql)
+	userService := service.NewUserService(userRepo)
+	userHandler := NewUserHandler(userService)
+
 	userGroup := r.Group("/api/v1/user")
 	{
-		userGroup.POST("/register", UserRegister)
-		userGroup.POST("/login", UserLogin)
-		userGroup.PUT("/update", middleware.JwtAuthMiddleware(), UpdateUserInfo)
+		userGroup.POST("/register", userHandler.UserRegister)
+		userGroup.POST("/login", userHandler.UserLogin)
+		userGroup.PUT("/update", middleware.JwtAuthMiddleware(), userHandler.UpdateUserInfo)
 	}
 
 	//创建api,service,repository实例
