@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -108,16 +109,6 @@ func UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader
 
 }
 
-// 查询用户信息,只返回有无该用户
-func GetUser(username string) error {
-	repo := repository.NewUserRepository(global.Mysql)
-	_, err := repo.GetUserByUsername(username)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // 更新用户信息
 func UpdateUserInfo(username string, file multipart.File, header *multipart.FileHeader, newusername, newnickname string) error {
 	repo := repository.NewUserRepository(global.Mysql)
@@ -148,5 +139,18 @@ func UpdateUserInfo(username string, file multipart.File, header *multipart.File
 	existingUser.Username = newusername
 	existingUser.Nickname = newnickname
 
-	return repo.UpdateUser(existingUser)
+	if err := repo.UpdateUser(existingUser); err != nil {
+		return err
+	}
+
+	//获取请求上下文的jwt
+
+	authHeader := global.GinContext.GetHeader("Authorization")
+	tokenstring := strings.Replace(authHeader, "Bearer ", "", 1)
+
+	if err := auth.AddTokenToBlacklist(tokenstring); err != nil {
+		return err
+	}
+	return nil
+
 }

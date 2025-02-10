@@ -27,7 +27,7 @@ func SetupMysql() {
 	if err != nil {
 		global.Logger.Fatal("数据库连接失败" + err.Error())
 	}
-	global.Mysql = db             // 将数据库连接赋值给全局变量global.Mysql
+	global.Mysql = db                    // 将数据库连接赋值给全局变量global.Mysql
 	global.Logger.Info("数据库连接成功") // 记录数据库连接成功的日志信息
 
 	// 执行数据库迁移，确保数据库中的表与 Go 模型匹配
@@ -53,13 +53,13 @@ func SetupRedis() {
 		global.Logger.Fatal("redis连接失败" + err.Error())
 	}
 
-	// 确保在SetupRedis()函数结束时关闭 Redis 连接，防止资源泄漏。
-	defer func(rdb *redis.Client) {
-		if err := rdb.Close(); err != nil {
-			global.Logger.Error("redis关闭失败" + err.Error())
-		}
-		global.Logger.Info("redis关闭成功")
-	}(rdb) //将rdb作为参数传给匿名函数
+	//// 确保在SetupRedis()函数结束时关闭 Redis 连接，防止资源泄漏。
+	//defer func(rdb *redis.Client) {
+	//	if err := rdb.Close(); err != nil {
+	//		global.Logger.Error("redis关闭失败" + err.Error())
+	//	}
+	//	global.Logger.Info("redis关闭成功")
+	//}(rdb) //将rdb作为参数传给匿名函数
 
 	// 将 Redis 客户端实例赋值给全局变量 global.Redis，以便在程序中使用。
 	global.Redis = rdb

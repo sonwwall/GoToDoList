@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"GoToDoList/internal/global"
+	"context"
+	"errors"
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
@@ -49,5 +52,27 @@ func ParseToken(tokenString string) (*Claims, error) {
 	if !token.Valid {
 		return nil, jwt.ErrSignatureInvalid
 	}
+
+	// 检查 JWT 是否在黑名单中
+	ctx := context.Background()
+	blacklisted, err := global.Redis.Get(ctx, tokenString).Result()
+	if err == nil && blacklisted == "true" {
+		return nil, errors.New("token 已失效")
+	}
+
 	return claims, nil
+
+}
+
+// 将jwt添加到黑名单
+func AddTokenToBlacklist(tokenString string) error {
+	ctx := context.Background()
+	expiration := time.Hour * 24 //设置过期时间
+	// 使用 global.Redis.Set 方法将 JWT 令牌添加到 Redis 数据库中
+	// 第三个参数 "true" 表示在 Redis 中存储的值，这里简单地使用字符串 "true" 来标记该令牌已被列入黑名单。
+	err := global.Redis.Set(ctx, tokenString, "true", expiration).Err()
+	if err != nil {
+		return err
+	}
+	return nil
 }

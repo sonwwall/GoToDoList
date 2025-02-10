@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"GoToDoList/internal/global"
 	"GoToDoList/internal/pkg/auth"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -26,6 +27,14 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		tokenstring := strings.Replace(authHeader, "Bearer ", "", 1)
 		claims, err := auth.ParseToken(tokenstring)
 		if err != nil {
+			if err.Error() == "token 已失效" {
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"code": 401,
+					"msg":  "token已失效,请重新登录",
+				})
+				c.Abort()
+				return
+			}
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"code": 401,
 				"msg":  "token错误",
@@ -36,6 +45,9 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 
 		// 将解析出的用户名设置到请求上下文中，供后续处理函数使用
 		c.Set("username", claims.Username)
+
+		// 将 gin.Context 设置到全局变量中，以便在 service 中使用
+		global.GinContext = c
 
 		c.Next()
 
