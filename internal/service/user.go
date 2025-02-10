@@ -83,15 +83,19 @@ func UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader
 	// 生成文件名
 	ext := filepath.Ext(header.Filename)
 	filename := fmt.Sprintf("%d_%s%s", userID, time.Now().Format("2006-01-02-15-04-05"), ext)
+	// 使用 filepath.Join 将目录路径和文件名组合成完整的文件路径。
 	filePath := filepath.Join(dir, filename)
 
 	// 保存文件
+	// 使用 os.Create 创建一个新的文件，路径为 filePath
 	out, err := os.Create(filePath)
 	if err != nil {
 		return "", fmt.Errorf("创建文件失败:%v", err)
 	}
+	// 使用 defer out.Close() 确保文件在函数结束时被关闭。
 	defer out.Close()
 
+	// 使用 io.Copy 将上传的文件内容复制到新创建的文件中
 	_, err = io.Copy(out, file)
 	if err != nil {
 		return "", fmt.Errorf("复制文件失败:%v", err)
@@ -102,6 +106,16 @@ func UpdateAvatar(userID uint, file multipart.File, header *multipart.FileHeader
 
 	return avatarURL, nil
 
+}
+
+// 查询用户信息,只返回有无该用户
+func GetUser(username string) error {
+	repo := repository.NewUserRepository(global.Mysql)
+	_, err := repo.GetUserByUsername(username)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // 更新用户信息
@@ -122,6 +136,7 @@ func UpdateUserInfo(username string, file multipart.File, header *multipart.File
 		}
 
 		// 更新用户头像
+		// 将得到的用户信息中的id传入
 		avatarurl, err := UpdateAvatar(existingUser.ID, file, header)
 		if err != nil {
 			return err

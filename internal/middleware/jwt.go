@@ -36,7 +36,9 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 
 		// 将解析出的用户名设置到请求上下文中，供后续处理函数使用
 		c.Set("username", claims.Username)
+
 		c.Next()
+
 	}
 
 }

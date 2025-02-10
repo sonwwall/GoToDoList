@@ -38,8 +38,3 @@ func (r *UserRepository) GetUserByUsername(username string) (*model.User, error)
 func (r *UserRepository) UpdateUser(user *model.User) error {
 	return r.db.Model(&model.User{}).Where("id = ?", user.ID).Updates(user).Error
 }
-
-// UpdateAvatar 更新用户头像
-func (r *UserRepository) UpdateAvatar(userID uint, avatarURL string) error {
-	return r.db.Model(&model.User{}).Where("id=?", userID).Update("avatar", avatarURL).Error
-}

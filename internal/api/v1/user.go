@@ -90,6 +90,7 @@ func AnyToString(value any) string {
 func UpdateUserInfo(c *gin.Context) {
 	// 获取用户名,验证用户
 	username, exists := c.Get("username")
+
 	if !exists {
 		c.JSON(200, gin.H{
 			"code": 400,
@@ -103,7 +104,7 @@ func UpdateUserInfo(c *gin.Context) {
 
 	//获取文件
 	file, header, err := c.Request.FormFile("avatar")
-	if err != nil {
+	if err != nil && err.Error() != "http: no such file" {
 		c.JSON(200, gin.H{
 			"code":  400,
 			"msg":   "上传文件失败",
