@@ -43,3 +43,16 @@ func (r *ListRepository) DeleteList(id uint) (int64, error) {
 	result := r.db.Delete(&model.List{}, id)
 	return result.RowsAffected, result.Error
 }
+
+// 根据用户名获取用户
+func (r *ListRepository) GetUserByName(username string) (*model.User, error) {
+	var user model.User
+	result := r.db.Where("username=?", username).First(&user)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, nil //用户不存在
+		}
+		return nil, result.Error //可能数据库查询有误
+	}
+	return &user, nil
+}

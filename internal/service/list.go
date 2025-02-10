@@ -20,7 +20,9 @@ func NewListService(repo *repository.ListRepository) *ListService {
 
 // CreateList 创建一个新的列表。
 func (s *ListService) CreateList(list *model.List) error {
+
 	return s.repo.CreateList(list).Error
+
 }
 
 // GetListByID 根据给定的 ID 获取列表。
@@ -46,4 +48,9 @@ func (s *ListService) DeleteList(id uint) error {
 		return ErrListNotFound
 	}
 	return nil
+}
+
+// GetUserByName 根据给定的用户名获取用户。
+func (s *ListService) GetUserByName(username string) (*model.User, error) {
+	return s.repo.GetUserByName(username)
 }

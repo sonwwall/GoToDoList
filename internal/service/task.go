@@ -42,3 +42,7 @@ func (s *TaskService) DeleteTask(id uint) error {
 	}
 	return nil
 }
+
+func (s *TaskService) GetUserByName(username string) (*model.User, error) {
+	return s.repo.GetUserByName(username)
+}
