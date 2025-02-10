@@ -4,6 +4,12 @@ import (
 	"GoToDoList/internal/model"
 	"GoToDoList/internal/repository"
 	"errors"
+	"fmt"
+	"io"
+	"mime/multipart"
+	"os"
+	"path/filepath"
+	"time"
 )
 
 type ListService struct {
@@ -19,9 +25,34 @@ func NewListService(repo *repository.ListRepository) *ListService {
 }
 
 // CreateList 创建一个新的列表。
-func (s *ListService) CreateList(list *model.List) error {
+func (s *ListService) CreateList(list *model.List, file multipart.File, header *multipart.FileHeader) error {
 
-	return s.repo.CreateList(list).Error
+	result, relist := s.repo.CreateList(list)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// 如果用户上传了图片，则更新图片
+	if file != nil && header != nil {
+		// 检查文件类型
+		ext := filepath.Ext(header.Filename)
+		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" {
+			return errors.New("文件类型不支持")
+		}
+
+		// 将得到的用户信息中的id传入
+		url, err := s.UpdateDescPicture(relist.ID, file, header)
+		if err != nil {
+			return err
+		}
+		relist.DescPicture = url
+
+		//再次存入数据库，这次是为了存入头像url
+		if err := s.repo.UpdateList(relist); err != nil {
+			return err.Error
+		}
+	}
+	return nil
 
 }
 
@@ -53,4 +84,39 @@ func (s *ListService) DeleteList(id uint) error {
 // GetUserByName 根据给定的用户名获取用户。
 func (s *ListService) GetUserByName(username string) (*model.User, error) {
 	return s.repo.GetUserByName(username)
+}
+
+// 更新描述图像
+func (s *ListService) UpdateDescPicture(listID uint, file multipart.File, header *multipart.FileHeader) (string, error) {
+	// 创建保存路径
+	dir := "./uploads/list_desc_pictures"
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return "", fmt.Errorf("创建目录失败:%v", err)
+	}
+
+	// 生成文件名
+	ext := filepath.Ext(header.Filename)
+	filename := fmt.Sprintf("%d_%s%s", listID, time.Now().Format("2006-01-02-15-04-05"), ext)
+	// 使用 filepath.Join 将目录路径和文件名组合成完整的文件路径。
+	filePath := filepath.Join(dir, filename)
+
+	// 保存文件
+	// 使用 os.Create 创建一个新的文件，路径为 filePath
+	out, err := os.Create(filePath)
+	if err != nil {
+		return "", fmt.Errorf("创建文件失败:%v", err)
+	}
+	// 使用 defer out.Close() 确保文件在函数结束时被关闭。
+	defer out.Close()
+
+	// 使用 io.Copy 将上传的文件内容复制到新创建的文件中
+	_, err = io.Copy(out, file)
+	if err != nil {
+		return "", fmt.Errorf("复制文件失败:%v", err)
+	}
+
+	// 返回保存的URL
+	DescPictureURL := fmt.Sprintf("/uploads/avatars/%s", filename)
+
+	return DescPictureURL, nil
 }

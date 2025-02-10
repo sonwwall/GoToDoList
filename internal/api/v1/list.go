@@ -30,7 +30,17 @@ func (h *ListHandler) CreateList(c *gin.Context) {
 
 		return
 	}
-	if err := h.ListService.CreateList(&list); err != nil {
+	//获取文件
+	file, header, err := c.Request.FormFile("desc_picture")
+	if err != nil && err.Error() != "http: no such file" {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "上传文件失败",
+			"error": err.Error(),
+		})
+		return
+	}
+	if err := h.ListService.CreateList(&list, file, header); err != nil {
 		c.JSON(200, gin.H{
 			"code": 400,
 			"msg":  "创建失败",

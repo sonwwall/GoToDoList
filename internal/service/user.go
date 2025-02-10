@@ -28,8 +28,7 @@ var UserExisted = errors.New("用户已存在")
 
 // 注册
 func (s *UserService) Register(user *model.User, file multipart.File, header *multipart.FileHeader) error {
-	repo := repository.NewUserRepository(global.Mysql)
-	existingUser, err := repo.GetUserByUsername(user.Username)
+	existingUser, err := s.UserRepository.GetUserByUsername(user.Username)
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,7 @@ func (s *UserService) Register(user *model.User, file multipart.File, header *mu
 	}
 
 	//先存入数据库中，自动获取用户id
-	result := repo.CreateUser(user)
+	result := s.UserRepository.CreateUser(user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -66,7 +65,7 @@ func (s *UserService) Register(user *model.User, file multipart.File, header *mu
 		user.Avatar = avatarurl
 
 		//再次存入数据库，这次是为了存入头像url
-		if err := repo.UpdateUser(user); err != nil {
+		if err := s.UserRepository.UpdateUser(user); err != nil {
 			return err
 		}
 	}

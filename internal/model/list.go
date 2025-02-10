@@ -7,4 +7,5 @@ type List struct {
 	Name        string `form:"name" json:"name" binding:"required"`
 	Description string `form:"description" json:"description"`
 	UserID      uint
+	DescPicture string
 }

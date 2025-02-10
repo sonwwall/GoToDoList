@@ -15,12 +15,12 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-// / CreateUser 创建用户
+// CreateUser 创建用户
 func (r *UserRepository) CreateUser(user *model.User) *gorm.DB {
 	return r.db.Create(user)
 }
 
-// / GetUserByUsername 根据用户名获取用户
+// GetUserByUsername 根据用户名获取用户
 func (r *UserRepository) GetUserByUsername(username string) (*model.User, error) {
 	var user model.User
 	result := r.db.Where("username=?", username).First(&user)
