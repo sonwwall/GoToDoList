@@ -324,3 +324,11 @@
 2025-02-10 22:16:12	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:31	数据库连接成功
 2025-02-10 22:16:12	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:66	redis连接成功
 2025-02-10 22:16:12	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/cmd/app/main.go:19	服务正在启动...端口在8080...
+2025-02-11 10:40:05	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Logger.go:53	日志组件初始化成功
+2025-02-11 10:40:05	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:31	数据库连接成功
+2025-02-11 10:40:05	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:66	redis连接成功
+2025-02-11 10:40:05	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/cmd/app/main.go:19	服务正在启动...端口在8080...
+2025-02-11 10:45:14	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Logger.go:53	日志组件初始化成功
+2025-02-11 10:45:14	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:31	数据库连接成功
+2025-02-11 10:45:14	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/internal/initialize/Database.go:66	redis连接成功
+2025-02-11 10:45:14	[34mINFO[0m	C:/Users/sonwg/GolandProjects/GoToDoList/cmd/app/main.go:19	服务正在启动...端口在8080...

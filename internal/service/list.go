@@ -62,8 +62,29 @@ func (s *ListService) GetListByID(id uint) (*model.List, error) {
 }
 
 // UpdateList 更新列表。
-func (s *ListService) UpdateList(list *model.List) error {
-	return s.repo.UpdateList(list).Error
+func (s *ListService) UpdateList(list *model.List, file multipart.File, header *multipart.FileHeader) error {
+	// 如果用户上传了图片，则更新图片
+	if file != nil && header != nil {
+		// 检查文件类型
+		ext := filepath.Ext(header.Filename)
+		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif" {
+			return errors.New("文件类型不支持")
+		}
+
+		// 将得到的用户信息中的id传入
+		url, err := s.UpdateDescPicture(list.ID, file, header)
+		if err != nil {
+			return err
+		}
+		list.DescPicture = url
+
+	}
+	result := s.repo.UpdateList(list)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+
 }
 
 // DeleteList 根据给定的 ID 删除列表。
@@ -116,7 +137,7 @@ func (s *ListService) UpdateDescPicture(listID uint, file multipart.File, header
 	}
 
 	// 返回保存的URL
-	DescPictureURL := fmt.Sprintf("/uploads/avatars/%s", filename)
+	DescPictureURL := fmt.Sprintf("/uploads/list_desc_pictures/%s", filename)
 
 	return DescPictureURL, nil
 }

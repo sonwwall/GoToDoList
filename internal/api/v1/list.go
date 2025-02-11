@@ -52,7 +52,7 @@ func (h *ListHandler) CreateList(c *gin.Context) {
 
 	user, _ := h.ListService.GetUserByName(username)
 	list.UserID = user.ID
-	if err := h.ListService.UpdateList(&list); err != nil {
+	if err := h.ListService.UpdateList(&list, file, header); err != nil {
 		c.JSON(200, gin.H{
 			"code": 400,
 			"msg":  "创建失败",
@@ -120,6 +120,17 @@ func (h *ListHandler) UpdateList(c *gin.Context) {
 	username := username_any.(string)
 	user, _ := h.ListService.GetUserByName(username)
 
+	//获取文件
+	file, header, err := c.Request.FormFile("desc_picture")
+	if err != nil && err.Error() != "http: no such file" {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "上传文件失败",
+			"error": err.Error(),
+		})
+		return
+	}
+
 	id := c.Param("id")
 	// 将id转换为int类型
 	listID, err := strconv.Atoi(id)
@@ -166,7 +177,7 @@ func (h *ListHandler) UpdateList(c *gin.Context) {
 	list.ID = uint(listID)
 	list.CreatedAt = existinglist.CreatedAt //如果不加这一条就会使得创建时间变为空
 	// 更新列表
-	if err := h.ListService.UpdateList(&list); err != nil {
+	if err := h.ListService.UpdateList(&list, file, header); err != nil {
 		c.JSON(200, gin.H{
 			"code": 400,
 			"msg":  "更新清单失败",
