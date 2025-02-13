@@ -57,8 +57,8 @@ func (s *ListService) CreateList(list *model.List, file multipart.File, header *
 }
 
 // GetListByID 根据给定的 ID 获取列表。
-func (s *ListService) GetListByID(id uint) (*model.List, error) {
-	return s.repo.GetListByID(id)
+func (s *ListService) GetListByID(id uint, userid uint) (*model.List, error) {
+	return s.repo.GetListByID(id, userid)
 }
 
 // UpdateList 更新列表。
@@ -92,14 +92,7 @@ func (s *ListService) UpdateList(list *model.List, file multipart.File, header *
 var ErrListNotFound = errors.New("列表不存在")
 
 func (s *ListService) DeleteList(id uint) error {
-	rowsAffected, err := s.repo.DeleteList(id)
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		return ErrListNotFound
-	}
-	return nil
+	return s.repo.DeleteList(id)
 }
 
 // GetUserByName 根据给定的用户名获取用户。

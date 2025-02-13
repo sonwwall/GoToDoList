@@ -20,9 +20,9 @@ func (r *ListRepository) CreateList(list *model.List) (*gorm.DB, *model.List) {
 }
 
 // GetListByID 根据ID获取列表
-func (r *ListRepository) GetListByID(id uint) (*model.List, error) {
+func (r *ListRepository) GetListByID(id uint, userid uint) (*model.List, error) {
 	var list model.List
-	result := r.db.First(&list, id)
+	result := r.db.Where("id=?", id).Where("user_id=?", userid).First(&list)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -39,9 +39,9 @@ func (r *ListRepository) UpdateList(list *model.List) *gorm.DB {
 
 // DeleteList 删除列表
 // 由于删除没有的数据时不会返回错误，所以这里返回受影响的行数和错误
-func (r *ListRepository) DeleteList(id uint) (int64, error) {
+func (r *ListRepository) DeleteList(id uint) error {
 	result := r.db.Delete(&model.List{}, id)
-	return result.RowsAffected, result.Error
+	return result.Error
 }
 
 // GetUserByName 根据用户名获取用户

@@ -68,9 +68,16 @@ func (h *ListHandler) CreateList(c *gin.Context) {
 
 // GetList 获取列表
 func (h *ListHandler) GetList(c *gin.Context) {
-	username_any, _ := c.Get("username")
-	username := username_any.(string)
-	user, _ := h.ListService.GetUserByName(username)
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
 
 	id := c.Param("id")
 	// 将id转换为int类型
@@ -82,7 +89,8 @@ func (h *ListHandler) GetList(c *gin.Context) {
 		})
 		return
 	}
-	list, err := h.ListService.GetListByID(uint(listID))
+
+	list, err := h.ListService.GetListByID(uint(listID), userid)
 
 	if err != nil {
 		c.JSON(200, gin.H{
@@ -98,13 +106,7 @@ func (h *ListHandler) GetList(c *gin.Context) {
 		})
 		return
 	}
-	if list.UserID != user.ID {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "清单不存在(无权限)",
-		})
-		return
-	}
+
 	c.JSON(200, gin.H{
 		"code": 200,
 		"msg":  "获取清单成功",
@@ -115,10 +117,17 @@ func (h *ListHandler) GetList(c *gin.Context) {
 
 // UpdateList 更新列表
 func (h *ListHandler) UpdateList(c *gin.Context) {
-	// 获取用户名,验证用户
-	username_any, _ := c.Get("username")
-	username := username_any.(string)
-	user, _ := h.ListService.GetUserByName(username)
+	// 获取用户id,验证用户
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
 
 	//获取文件
 	file, header, err := c.Request.FormFile("desc_picture")
@@ -142,7 +151,7 @@ func (h *ListHandler) UpdateList(c *gin.Context) {
 		return
 	}
 	// 先获取要更新的清单
-	existinglist, err := h.ListService.GetListByID(uint(listID))
+	existinglist, err := h.ListService.GetListByID(uint(listID), userid)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"code": 400,
@@ -157,14 +166,7 @@ func (h *ListHandler) UpdateList(c *gin.Context) {
 		})
 		return
 	}
-	// 验证用户
-	if existinglist.UserID != user.ID {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "清单不存在(无权限)",
-		})
-		return
-	}
+
 	var list model.List
 	if err := c.ShouldBind(&list); err != nil {
 		c.JSON(200, gin.H{
@@ -193,10 +195,16 @@ func (h *ListHandler) UpdateList(c *gin.Context) {
 
 // DeleteList 删除列表
 func (h *ListHandler) DeleteList(c *gin.Context) {
-	// 获取用户名,验证用户
-	username_any, _ := c.Get("username")
-	username := username_any.(string)
-	user, _ := h.ListService.GetUserByName(username)
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
 
 	id := c.Param("id")
 	// 将id转换为int类型
@@ -209,7 +217,7 @@ func (h *ListHandler) DeleteList(c *gin.Context) {
 		return
 	}
 	//复用获取清单的代码
-	existinglist, err := h.ListService.GetListByID(uint(listID))
+	existinglist, err := h.ListService.GetListByID(uint(listID), userid)
 	if err != nil {
 		c.JSON(200, gin.H{
 			"code": 400,
@@ -224,22 +232,9 @@ func (h *ListHandler) DeleteList(c *gin.Context) {
 		})
 		return
 	}
-	// 验证用户
-	if existinglist.UserID != user.ID {
-		c.JSON(200, gin.H{
-			"code": 400,
-			"msg":  "清单不存在(无权限)",
-		})
-		return
-	}
+
 	if err := h.ListService.DeleteList(uint(listID)); err != nil {
-		if err == service.ErrListNotFound {
-			c.JSON(200, gin.H{
-				"code": 404,
-				"msg":  "清单不存在",
-			})
-			return
-		}
+
 		c.JSON(200, gin.H{
 			"code": 400,
 			"msg":  "删除清单失败",

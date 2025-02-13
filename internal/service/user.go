@@ -78,9 +78,8 @@ var UserNotExisted = errors.New("用户不存在")
 var PasswordError = errors.New("密码错误")
 
 func (s *UserService) Login(user *model.User) (error, string) {
-	// 创建一个 UserRepository 实例，用于与数据库交互
-	repo := repository.NewUserRepository(global.Mysql)
-	existingUser, err := repo.GetUserByUsername(user.Username) //查询数据库有无此人,如果存在就返回该用户实例
+
+	existingUser, err := s.UserRepository.GetUserByUsername(user.Username) //查询数据库有无此人,如果存在就返回该用户实例
 	// 如果没有发生错误但未找到用户，则返回用户不存在的错误。
 	if err == nil && existingUser == nil {
 		return UserNotExisted, ""
@@ -94,7 +93,7 @@ func (s *UserService) Login(user *model.User) (error, string) {
 		return PasswordError, ""
 	} else {
 
-		token, err := auth.GenerateToken(existingUser.Username)
+		token, err := auth.GenerateToken(existingUser.Username, existingUser.ID)
 		if err != nil {
 			return err, ""
 		}

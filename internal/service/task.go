@@ -20,8 +20,8 @@ func (s *TaskService) CreateTask(task *model.Task) error {
 }
 
 // GetTask 根据ID获取任务
-func (s *TaskService) GetTask(id uint) (*model.Task, error) {
-	return s.repo.GetTaskByID(id)
+func (s *TaskService) GetTask(id uint, userid uint) (*model.Task, error) {
+	return s.repo.GetTaskByID(id, userid)
 }
 
 // UpdateTask 更新任务
@@ -33,13 +33,11 @@ func (s *TaskService) UpdateTask(task *model.Task) error {
 var ErrTaskNotFound = errors.New("任务不存在")
 
 func (s *TaskService) DeleteTask(id uint) error {
-	rowsAffected, err := s.repo.DeleteTask(id)
+	err := s.repo.DeleteTask(id)
 	if err != nil {
 		return err
 	}
-	if rowsAffected == 0 {
-		return ErrTaskNotFound
-	}
+
 	return nil
 }
 

@@ -13,18 +13,21 @@ var jwtkey = []byte("sonwwall")
 
 type Claims struct {
 	Username string `json:"username"`
+	UserId   uint   `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
 // 生成token
-func GenerateToken(username string) (string, error) {
+func GenerateToken(username string, userid uint) (string, error) {
 	expirationTime := jwt.NewNumericDate(time.Now().Add(time.Hour * 24)) //设置过期时间
 	claims := &Claims{
 		Username: username,
+		UserId:   userid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expirationTime,
 		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtkey)
 	if err != nil {
