@@ -45,6 +45,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 
 		// 将解析出的用户名设置到请求上下文中，供后续处理函数使用
 		c.Set("username", claims.Username)
+		c.Set("userid", claims.UserId)
 
 		// 将 gin.Context 设置到全局变量中，以便在 service 中使用
 		global.GinContext = c

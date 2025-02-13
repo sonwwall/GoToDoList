@@ -19,9 +19,9 @@ func (r *TaskRepository) CreateTask(task *model.Task) *gorm.DB {
 }
 
 // GetTaskByID 根据ID获取任务
-func (r *TaskRepository) GetTaskByID(id uint) (*model.Task, error) {
+func (r *TaskRepository) GetTaskByID(id uint, userid uint) (*model.Task, error) {
 	var task model.Task
-	result := r.db.First(&task, id)
+	result := r.db.Where("id=?", id).Where("user_id=?", userid).First(&task)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			return nil, nil
@@ -41,9 +41,9 @@ func (r *TaskRepository) UpdateTask(task *model.Task) *gorm.DB {
 }
 
 // DeleteTask 删除任务
-func (r *TaskRepository) DeleteTask(id uint) (int64, error) {
+func (r *TaskRepository) DeleteTask(id uint) error {
 	result := r.db.Delete(&model.Task{}, id)
-	return result.RowsAffected, result.Error
+	return result.Error
 }
 
 // 根据用户名获取用户
