@@ -2,6 +2,7 @@ package repository
 
 import (
 	"GoToDoList/internal/model"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -68,4 +69,28 @@ func (r *ListRepository) GetListByListName(listName string) (*model.List, error)
 		return nil, result.Error //可能数据库查询有误
 	}
 	return &list, nil
+}
+
+func (r *ListRepository) SearchList(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
+	var lists []*model.List
+	var total int64
+	//公式 (page - 1) * size 计算当前页的起始记录位置。例如：
+	//如果 page = 1，size = 10，则 offset = 0（从第 0 条记录开始）。
+	//如果 page = 2，size = 10，则 offset = 10（从第 10 条记录开始）
+	offset := (page - 1) * size
+	fmt.Println(keyword)
+	fmt.Println(userid)
+	result := r.db.Model(&model.List{}).
+		Where("name LIKE ? OR description LIKE ?", "%"+keyword+"%", "%"+keyword+"%").
+		Where("user_id=?", userid).
+		Count(&total). //Count 方法会自动执行统计查询，并返回统计结果。
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&lists) //查询最终的结果，并将结果存储到变量 lists 中
+
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	return lists, total, nil
 }

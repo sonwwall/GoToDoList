@@ -12,6 +12,12 @@ type ListHandler struct {
 	ListService *service.ListService
 }
 
+type ListSearch struct {
+	Keyword string `form:"keyword" json:"keyword" binding:"required"`
+	Page    uint   `form:"page" json:"page"`
+	Size    uint   `form:"size" json:"size"`
+}
+
 // NewListHandler 创建列表处理器即返回实例
 func NewListHandler(listService *service.ListService) *ListHandler {
 	return &ListHandler{
@@ -244,6 +250,45 @@ func (h *ListHandler) DeleteList(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 200,
 		"msg":  "删除清单成功",
+	})
+
+}
+
+// SearchList 搜索列表
+func (h *ListHandler) SearchList(c *gin.Context) {
+	var search ListSearch
+	if err := c.ShouldBind(&search); err != nil {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
+	lists, total, err := h.ListService.SearchList(search.Keyword, search.Page, search.Size, userid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "搜索失败",
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "搜索成功",
+		"data": gin.H{
+			"lists": lists,
+			"total": total,
+		},
 	})
 
 }

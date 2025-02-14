@@ -134,3 +134,13 @@ func (s *ListService) UpdateDescPicture(listID uint, file multipart.File, header
 
 	return DescPictureURL, nil
 }
+
+func (s *ListService) SearchList(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
+	if page == 0 {
+		page = 1
+	}
+	if size == 0 {
+		size = 10
+	}
+	return s.repo.SearchList(keyword, page, size, userid)
+}
