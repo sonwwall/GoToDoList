@@ -9,6 +9,7 @@ type TaskRepository struct {
 	db *gorm.DB
 }
 
+// NewTaskRepository 创建一个TaskRepository实例
 func NewTaskRepository(db *gorm.DB) *TaskRepository {
 	return &TaskRepository{db: db}
 }
@@ -46,7 +47,7 @@ func (r *TaskRepository) DeleteTask(id uint) error {
 	return result.Error
 }
 
-// 根据用户名获取用户
+// GetUserByName 根据用户名获取用户
 func (r *TaskRepository) GetUserByName(username string) (*model.User, error) {
 	var user model.User
 	result := r.db.Where("username=?", username).First(&user)
@@ -57,4 +58,21 @@ func (r *TaskRepository) GetUserByName(username string) (*model.User, error) {
 		return nil, result.Error //可能数据库查询有误
 	}
 	return &user, nil
+}
+
+func (r *TaskRepository) SearchTask(keyword string, page, size, userid uint) ([]*model.Task, int64, error) {
+	var tasks []*model.Task
+	var total int64
+	offset := (page - 1) * size
+	result := r.db.Model(&model.Task{}).
+		Where("user_id", userid).
+		Where("name LIKE ? OR description LIKE ?", "%"+keyword+"%", "%"+keyword+"%").
+		Count(&total).
+		Limit(int(size)).
+		Offset(int(offset)).
+		Find(&tasks)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	return tasks, total, nil
 }

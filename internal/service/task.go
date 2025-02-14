@@ -3,7 +3,6 @@ package service
 import (
 	"GoToDoList/internal/model"
 	"GoToDoList/internal/repository"
-	"errors"
 )
 
 type TaskService struct {
@@ -30,8 +29,6 @@ func (s *TaskService) UpdateTask(task *model.Task) error {
 }
 
 // DeleteTask 删除任务
-var ErrTaskNotFound = errors.New("任务不存在")
-
 func (s *TaskService) DeleteTask(id uint) error {
 	err := s.repo.DeleteTask(id)
 	if err != nil {
@@ -41,6 +38,18 @@ func (s *TaskService) DeleteTask(id uint) error {
 	return nil
 }
 
+// GetUserByName 根据用户名获取用户
 func (s *TaskService) GetUserByName(username string) (*model.User, error) {
 	return s.repo.GetUserByName(username)
+}
+
+// SearchTask 搜索任务
+func (s *TaskService) SearchTask(keyword string, page, size, userid uint) ([]*model.Task, int64, error) {
+	if page == 0 {
+		page = 1
+	}
+	if size == 0 {
+		size = 10
+	}
+	return s.repo.SearchTask(keyword, page, size, userid)
 }

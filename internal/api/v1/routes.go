@@ -60,6 +60,7 @@ func Router() *gin.Engine {
 		taskGroup.GET("/:id", taskHandler.GetTask)
 		taskGroup.PUT("/:id", taskHandler.UpdateTask)
 		taskGroup.DELETE("/:id", taskHandler.DeleteTask)
+		taskGroup.GET("/search", taskHandler.SearchTask)
 	}
 
 	return r

@@ -135,6 +135,7 @@ func (s *ListService) UpdateDescPicture(listID uint, file multipart.File, header
 	return DescPictureURL, nil
 }
 
+// SearchList 根据给定的关键词搜索列表。
 func (s *ListService) SearchList(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
 	if page == 0 {
 		page = 1

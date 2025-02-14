@@ -2,7 +2,6 @@ package repository
 
 import (
 	"GoToDoList/internal/model"
-	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -78,8 +77,6 @@ func (r *ListRepository) SearchList(keyword string, page, size, userid uint) ([]
 	//如果 page = 1，size = 10，则 offset = 0（从第 0 条记录开始）。
 	//如果 page = 2，size = 10，则 offset = 10（从第 10 条记录开始）
 	offset := (page - 1) * size
-	fmt.Println(keyword)
-	fmt.Println(userid)
 	result := r.db.Model(&model.List{}).
 		Where("name LIKE ? OR description LIKE ?", "%"+keyword+"%", "%"+keyword+"%").
 		Where("user_id=?", userid).
