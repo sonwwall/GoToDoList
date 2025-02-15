@@ -16,6 +16,19 @@ type ListSearch struct {
 	Keyword string `form:"keyword" json:"keyword" binding:"required"`
 	Page    uint   `form:"page" json:"page"`
 	Size    uint   `form:"size" json:"size"`
+	Tag     string `form:"tag" json:"tag"`
+}
+
+type ListSearchByGroup struct {
+	Page    uint `form:"page" json:"page"`
+	Size    uint `form:"size" json:"size"`
+	GroupID uint `form:"group_id" json:"group_id"`
+}
+
+type ListSearchByTag struct {
+	Page uint   `form:"page" json:"page"`
+	Size uint   `form:"size" json:"size"`
+	Tag  string `form:"tag" json:"tag"`
 }
 
 // NewListHandler 创建列表处理器即返回实例
@@ -293,6 +306,7 @@ func (h *ListHandler) SearchList(c *gin.Context) {
 
 }
 
+// SearchListAndTasks 搜索列表和任务
 func (h *ListHandler) SearchListAndTasks(c *gin.Context) {
 	var search ListSearch
 	if err := c.ShouldBind(&search); err != nil {
@@ -330,4 +344,84 @@ func (h *ListHandler) SearchListAndTasks(c *gin.Context) {
 		},
 	})
 
+}
+
+// SearchListByGroup 根据组别搜索列表
+func (h *ListHandler) SearchListByGroup(c *gin.Context) {
+	var search ListSearchByGroup
+	if err := c.ShouldBind(&search); err != nil {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "参数错误",
+			"error": err.Error(),
+		})
+		return
+	}
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
+	lists, total, err := h.ListService.SearchListByGroup(search.GroupID, search.Page, search.Size, userid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "搜索失败",
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "搜索成功",
+		"data": gin.H{
+			"lists": lists,
+			"total": total,
+		},
+	})
+
+}
+
+// SearchListByTag 根据Tag搜索列表
+func (h *ListHandler) SearchListByTag(c *gin.Context) {
+	var search ListSearchByTag
+	if err := c.ShouldBind(&search); err != nil {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "参数错误",
+		})
+		return
+	}
+	useridany, ok := c.Get("userid")
+	if !ok {
+		c.JSON(200, gin.H{
+			"code": 400,
+			"msg":  "token解析出现问题，请检查",
+		})
+		return
+	}
+
+	userid, _ := useridany.(uint)
+	lists, total, err := h.ListService.SearchListByTag(search.Tag, search.Page, search.Size, userid)
+	if err != nil {
+		c.JSON(200, gin.H{
+			"code":  400,
+			"msg":   "搜索失败",
+			"error": err.Error(),
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"code": 200,
+		"msg":  "搜索成功",
+		"data": gin.H{
+			"lists": lists,
+			"total": total,
+		},
+	})
 }

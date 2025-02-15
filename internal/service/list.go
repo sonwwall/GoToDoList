@@ -154,3 +154,25 @@ func (s *ListService) SearchListAndTasks(keyword string, page, size, userid uint
 	size = 1
 	return s.repo.SearchListAndTasks(keyword, page, size, userid)
 }
+
+// SearchListByGroup 根据给定的组别搜索列表
+func (s *ListService) SearchListByGroup(group uint, page, size, userid uint) ([]*model.List, int64, error) {
+	if page == 0 {
+		page = 1
+	}
+	if size == 0 {
+		size = 10
+	}
+	return s.repo.SearchListByGroup(group, page, size, userid)
+}
+
+// SearchListByTag 根据给定的标签搜索列表
+func (s *ListService) SearchListByTag(tag string, page, size, userid uint) ([]*model.List, int64, error) {
+	if page == 0 {
+		page = 1
+	}
+	if size == 0 {
+		size = 10
+	}
+	return s.repo.SearchListByTag(tag, page, size, userid)
+}

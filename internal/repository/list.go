@@ -105,3 +105,31 @@ func (r *ListRepository) SearchListAndTasks(keyword string, page, size, userid u
 	}
 	return lists, total, nil
 }
+
+// SearchListByGroup 根据分组搜索列表
+func (r *ListRepository) SearchListByGroup(group uint, page, size, userid uint) ([]*model.List, int64, error) {
+	var lists []*model.List
+	var total int64
+	offset := (page - 1) * size
+	result := r.db.Model(&model.List{}).Where("group_id=?", group).
+		Where("user_id=?", userid).Count(&total).Limit(int(size)).Offset(int(offset)).
+		Find(&lists)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	return lists, total, nil
+}
+
+// SearchListByTag 根据标签搜索列表
+func (r *ListRepository) SearchListByTag(tag string, page, size, userid uint) ([]*model.List, int64, error) {
+	var lists []*model.List
+	var total int64
+	offset := (page - 1) * size
+	result := r.db.Model(&model.List{}).Where("tag=?", tag).
+		Where("user_id=?", userid).Count(&total).Limit(int(size)).Offset(int(offset)).
+		Find(&lists)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	return lists, total, nil
+}

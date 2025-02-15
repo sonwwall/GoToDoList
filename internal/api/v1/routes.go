@@ -48,6 +48,8 @@ func Router() *gin.Engine {
 		listGroup.DELETE("/:id", listHandler.DeleteList)
 		listGroup.GET("/search", listHandler.SearchList)
 		listGroup.GET("/search/tasks", listHandler.SearchListAndTasks)
+		listGroup.GET("/group", listHandler.SearchListByGroup)
+		listGroup.GET("/tag", listHandler.SearchListByTag)
 	}
 
 	taskRepo := repository.NewTaskRepository(global.Mysql)
