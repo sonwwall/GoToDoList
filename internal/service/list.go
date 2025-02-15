@@ -145,3 +145,12 @@ func (s *ListService) SearchList(keyword string, page, size, userid uint) ([]*mo
 	}
 	return s.repo.SearchList(keyword, page, size, userid)
 }
+
+// SearchListAndTasks 根据给定的关键词搜索列表和任务。
+func (s *ListService) SearchListAndTasks(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
+	if page == 0 {
+		page = 1
+	}
+	size = 1
+	return s.repo.SearchListAndTasks(keyword, page, size, userid)
+}

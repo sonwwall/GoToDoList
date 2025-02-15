@@ -8,4 +8,5 @@ type List struct {
 	Description string `form:"description" json:"description"`
 	UserID      uint
 	DescPicture string
+	Tasks       []Task `gorm:"foreignKey:list_id"`
 }

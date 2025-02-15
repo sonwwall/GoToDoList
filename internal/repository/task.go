@@ -60,6 +60,7 @@ func (r *TaskRepository) GetUserByName(username string) (*model.User, error) {
 	return &user, nil
 }
 
+// SearchTask 根据关键词搜索任务
 func (r *TaskRepository) SearchTask(keyword string, page, size, userid uint) ([]*model.Task, int64, error) {
 	var tasks []*model.Task
 	var total int64
@@ -70,6 +71,34 @@ func (r *TaskRepository) SearchTask(keyword string, page, size, userid uint) ([]
 		Count(&total).
 		Limit(int(size)).
 		Offset(int(offset)).
+		Find(&tasks)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	return tasks, total, nil
+}
+
+func (r *TaskRepository) ClassifyTaskByPriority(userid uint, priority string) ([]*model.Task, int64, error) {
+	var tasks []*model.Task
+	var total int64
+	result := r.db.Model(&model.Task{}).
+		Where("user_id", userid).
+		Where("priority=?", priority).
+		Count(&total).
+		Find(&tasks)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+	return tasks, total, nil
+}
+
+func (r *TaskRepository) ClassifyTaskByListName(userid uint, listName string) ([]*model.Task, int64, error) {
+	var tasks []*model.Task
+	var total int64
+	result := r.db.Model(&model.Task{}).
+		Where("user_id", userid).
+		Where("list_id=(select id from lists where user_id=? and name=?)", userid, listName).
+		Count(&total).
 		Find(&tasks)
 	if result.Error != nil {
 		return nil, 0, result.Error

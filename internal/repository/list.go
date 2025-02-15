@@ -70,6 +70,7 @@ func (r *ListRepository) GetListByListName(listName string) (*model.List, error)
 	return &list, nil
 }
 
+// SearchList 根据关键字搜索列表
 func (r *ListRepository) SearchList(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
 	var lists []*model.List
 	var total int64
@@ -89,5 +90,18 @@ func (r *ListRepository) SearchList(keyword string, page, size, userid uint) ([]
 		return nil, 0, result.Error
 	}
 
+	return lists, total, nil
+}
+
+// SearchListAndTasks 根据列表名搜索列表和任务
+func (r *ListRepository) SearchListAndTasks(keyword string, page, size, userid uint) ([]*model.List, int64, error) {
+	var lists []*model.List
+	var total int64
+	offset := (page - 1) * size
+	result := r.db.Model(&model.List{}).Preload("Tasks").Where("name=?", keyword).Where("user_id=?", userid).
+		Count(&total).Limit(int(size)).Offset(int(offset)).Find(&lists)
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
 	return lists, total, nil
 }
