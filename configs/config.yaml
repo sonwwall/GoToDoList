@@ -6,11 +6,11 @@ ZapConfig:
 
 DatabaseConfig:
   MysqlConfig:
-    Username: "root"
-    Password: "123456"
-    Addr: "127.0.0.1:3307"
-    DB: "lesson11_test"
+    Username: "snow"
+    Password: 123456
+    Addr: db:3306
+    DB: todolist
   RedisConfig:
-    Addr: "127.0.0.1:6379"
+    Addr: redis:6379
     Password: ""
     DB: 0
